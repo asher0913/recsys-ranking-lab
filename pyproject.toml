@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "recsys-ranking-lab"
+version = "0.1.0"
+description = "A transparent multi-stage recommendation stack with short/long-term interests, hard-negative mining, retrieval-to-ranking alignment, and reproducible offline metrics."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "Asher"}]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["recsys_ranking_lab*"]
