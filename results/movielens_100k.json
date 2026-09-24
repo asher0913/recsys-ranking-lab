@@ -1,0 +1,258 @@
+{
+  "dataset": {
+    "name": "movielens-100k",
+    "users": 943,
+    "items": 1682,
+    "interactions": 100000,
+    "evaluated_users": 943
+  },
+  "config": {
+    "als": {
+      "factors": 32,
+      "reg": 1.0,
+      "alpha": 10.0
+    },
+    "knn": {
+      "neighbours": 200,
+      "shrink": 10.0
+    },
+    "per_source": {
+      "als": 100,
+      "item_knn": 100,
+      "popularity": 20
+    },
+    "negatives": 20
+  },
+  "candidate_recall": {
+    "als": 0.4889,
+    "item_knn": 0.28,
+    "popularity": 0.0817,
+    "merged": 0.5429
+  },
+  "mean_candidates": 157.0,
+  "results": [
+    {
+      "model": "popularity (retrieval only)",
+      "users": 943,
+      "hr@10": 0.0498,
+      "ndcg@10": 0.0253,
+      "mrr": 0.0179,
+      "coverage@10": 0.0541
+    },
+    {
+      "model": "item_knn (retrieval only)",
+      "users": 943,
+      "hr@10": 0.0604,
+      "ndcg@10": 0.0283,
+      "mrr": 0.0188,
+      "coverage@10": 0.1231
+    },
+    {
+      "model": "als (retrieval only)",
+      "users": 943,
+      "hr@10": 0.0965,
+      "ndcg@10": 0.0515,
+      "mrr": 0.038,
+      "coverage@10": 0.4679
+    },
+    {
+      "model": "two-stage, logistic ranker, random negatives",
+      "users": 943,
+      "hr@10": 0.1245,
+      "hr@10_std": 0.0041,
+      "ndcg@10": 0.0642,
+      "ndcg@10_std": 0.0013,
+      "mrr": 0.0462,
+      "mrr_std": 0.0009,
+      "coverage@10": 0.475,
+      "coverage@10_std": 0.0022
+    },
+    {
+      "model": "two-stage, logistic ranker, hard negatives",
+      "users": 943,
+      "hr@10": 0.1035,
+      "hr@10_std": 0.0019,
+      "ndcg@10": 0.0522,
+      "ndcg@10_std": 0.0015,
+      "mrr": 0.0371,
+      "mrr_std": 0.0019,
+      "coverage@10": 0.7209,
+      "coverage@10_std": 0.0033
+    },
+    {
+      "model": "two-stage, gbdt ranker, random negatives",
+      "users": 943,
+      "hr@10": 0.1317,
+      "hr@10_std": 0.0054,
+      "ndcg@10": 0.0647,
+      "ndcg@10_std": 0.0042,
+      "mrr": 0.0448,
+      "mrr_std": 0.0044,
+      "coverage@10": 0.546,
+      "coverage@10_std": 0.0066
+    },
+    {
+      "model": "two-stage, gbdt ranker, hard negatives",
+      "users": 943,
+      "hr@10": 0.1355,
+      "hr@10_std": 0.0089,
+      "ndcg@10": 0.068,
+      "ndcg@10_std": 0.0029,
+      "mrr": 0.0479,
+      "mrr_std": 0.0033,
+      "coverage@10": 0.5742,
+      "coverage@10_std": 0.0072
+    }
+  ],
+  "ablations": [
+    {
+      "model": "gbdt + hard negatives, without recent_knn_score",
+      "users": 943,
+      "hr@10": 0.0808,
+      "hr@10_std": 0.0032,
+      "ndcg@10": 0.0385,
+      "ndcg@10_std": 0.0012,
+      "mrr": 0.0259,
+      "mrr_std": 0.0008,
+      "coverage@10": 0.5108,
+      "coverage@10_std": 0.0187
+    },
+    {
+      "model": "gbdt + hard negatives, without genre_affinity",
+      "users": 943,
+      "hr@10": 0.1302,
+      "hr@10_std": 0.0071,
+      "ndcg@10": 0.065,
+      "ndcg@10_std": 0.003,
+      "mrr": 0.0456,
+      "mrr_std": 0.0028,
+      "coverage@10": 0.5843,
+      "coverage@10_std": 0.0084
+    },
+    {
+      "model": "gbdt + hard negatives, without log_popularity",
+      "users": 943,
+      "hr@10": 0.1196,
+      "hr@10_std": 0.0058,
+      "ndcg@10": 0.0554,
+      "ndcg@10_std": 0.0037,
+      "mrr": 0.0363,
+      "mrr_std": 0.0032,
+      "coverage@10": 0.534,
+      "coverage@10_std": 0.0027
+    }
+  ],
+  "ranker_seeds": 5,
+  "tuning": [
+    {
+      "model": "als",
+      "factors": 32,
+      "reg": 0.1,
+      "alpha": 10.0,
+      "valid_ndcg@10": 0.0609
+    },
+    {
+      "model": "als",
+      "factors": 32,
+      "reg": 0.1,
+      "alpha": 40.0,
+      "valid_ndcg@10": 0.0491
+    },
+    {
+      "model": "als",
+      "factors": 32,
+      "reg": 1.0,
+      "alpha": 10.0,
+      "valid_ndcg@10": 0.0615
+    },
+    {
+      "model": "als",
+      "factors": 32,
+      "reg": 1.0,
+      "alpha": 40.0,
+      "valid_ndcg@10": 0.0483
+    },
+    {
+      "model": "als",
+      "factors": 64,
+      "reg": 0.1,
+      "alpha": 10.0,
+      "valid_ndcg@10": 0.0538
+    },
+    {
+      "model": "als",
+      "factors": 64,
+      "reg": 0.1,
+      "alpha": 40.0,
+      "valid_ndcg@10": 0.0497
+    },
+    {
+      "model": "als",
+      "factors": 64,
+      "reg": 1.0,
+      "alpha": 10.0,
+      "valid_ndcg@10": 0.0546
+    },
+    {
+      "model": "als",
+      "factors": 64,
+      "reg": 1.0,
+      "alpha": 40.0,
+      "valid_ndcg@10": 0.0497
+    },
+    {
+      "model": "item_knn",
+      "neighbours": 50,
+      "shrink": 0.0,
+      "valid_ndcg@10": 0.0559
+    },
+    {
+      "model": "item_knn",
+      "neighbours": 50,
+      "shrink": 10.0,
+      "valid_ndcg@10": 0.0554
+    },
+    {
+      "model": "item_knn",
+      "neighbours": 50,
+      "shrink": 50.0,
+      "valid_ndcg@10": 0.0548
+    },
+    {
+      "model": "item_knn",
+      "neighbours": 100,
+      "shrink": 0.0,
+      "valid_ndcg@10": 0.0575
+    },
+    {
+      "model": "item_knn",
+      "neighbours": 100,
+      "shrink": 10.0,
+      "valid_ndcg@10": 0.0573
+    },
+    {
+      "model": "item_knn",
+      "neighbours": 100,
+      "shrink": 50.0,
+      "valid_ndcg@10": 0.0567
+    },
+    {
+      "model": "item_knn",
+      "neighbours": 200,
+      "shrink": 0.0,
+      "valid_ndcg@10": 0.055
+    },
+    {
+      "model": "item_knn",
+      "neighbours": 200,
+      "shrink": 10.0,
+      "valid_ndcg@10": 0.058
+    },
+    {
+      "model": "item_knn",
+      "neighbours": 200,
+      "shrink": 50.0,
+      "valid_ndcg@10": 0.0555
+    }
+  ]
+}
