@@ -12,6 +12,19 @@ at test time, and with a validation item used for every tuning decision.
 
 ![HR@10 by model and feature ablation](docs/results.png)
 
+## Quick start
+
+```bash
+git clone https://github.com/asher0913/recsys-ranking-lab && cd recsys-ranking-lab
+python3 -m venv .venv && . .venv/bin/activate && pip install -e '.[dev]'
+recsys-lab run --dataset synthetic --no-tune --seeds 1            # offline, seconds: the whole pipeline end to end
+recsys-lab run --data-dir data --out runs/movielens_100k.json      # the real benchmark below, several minutes on a laptop
+```
+
+The first run needs no download and is what CI runs on every push. The second one downloads
+MovieLens-100K (5 MB) from GroupLens, checks its SHA-256, tunes the retrievers on the validation
+item, trains 5 seeds of each ranker and regenerates every number in the tables below.
+
 ## Results
 
 943 users, 1,682 movies, 100,000 interactions. Each user's last movie is the test target and the
@@ -79,13 +92,56 @@ plus validation interactions and the frozen ranker scores their candidates.
 - Top-k selection uses `argpartition` with a deterministic tie-break on item id, so results are
   reproducible bit for bit.
 
+## Evidence and CI coverage
+
+| Result | Kind of evidence | File | Rerun in CI? |
+|---|---|---|---|
+| Model table, candidate recall, feature ablation | **real data**: MovieLens-100K, chronological leave-last-out, full-catalogue ranking | `results/movielens_100k.json`, `docs/results.png` | **No.** The full run takes several minutes and downloads GroupLens data that may not be redistributed. Rerun it with the second Quick start command. |
+| The pipeline runs end to end and beats random ranking | synthetic users with drifting tastes | `tests/`, CI smoke run | Yes |
+| Split, top-k, masking, ALS, ItemKNN and metric correctness | unit tests on hand-computed cases | `tests/test_recsys.py` (12 tests) | Yes, on Python 3.10 and 3.12 |
+
+Reproducibility details:
+
+- **Data version:** `ml-100k.zip` from GroupLens, SHA-256 `50d2a982…6a3229`, checked by
+  `recsys-lab download` before anything is unpacked.
+- **Seeds:** retrievers use seed 0; each ranker row averages seeds 0–4, which set negative
+  sampling (`training_pairs`) and the GBDT's `random_state`.
+- **Configuration:** the selected ALS and ItemKNN settings and every tuning row are stored in
+  `results/movielens_100k.json` under `config` and `tuning`.
+
+## Design trade-offs
+
+| Decision | Chosen | Alternative | Why |
+|---|---|---|---|
+| Evaluation | chronological leave-last-out, full catalogue, seen items masked | random split with 100 sampled negatives | Sampled negatives inflate metrics and can reorder models; a random split leaks the future. |
+| Tuning | validation item only, retrievers refitted on train + validation for test | tune on test | Every number in the table is a single test-set evaluation. |
+| Two stages | merge ALS, ItemKNN and popularity candidates, then re-rank | one model over the full catalogue | The ranker can use features (recency similarity, popularity) that no single retriever combines; candidate recall of 54.3% is its ceiling. |
+| Ranker | pointwise GBDT | LambdaMART or a sequence model | Pointwise is simple and was enough to show where the lift comes from; listwise and sequential models are the next step (Limitations). |
+
+## Failure cases
+
+- **Hard negatives hurt the linear ranker.** Logistic regression with hard negatives drops from
+  0.125 to 0.104 HR@10: it learns to down-weight the retrieval scores that find the positive.
+- **46% of test items are never in the candidate set.** No ranker can recover them; better
+  retrieval, such as a sequence model, is the only fix.
+- **Genre affinity adds nothing measurable.** Removing it changes HR@10 within seed noise.
+
+## Code map
+
+| File | What to look at |
+|---|---|
+| `src/recsys/data.py` | `download_movielens` (checksum), `load_movielens`, `leave_last_out`, the synthetic generator |
+| `src/recsys/retrieval.py` | `Popularity`, `ItemKNN` (shrunk cosine, top-neighbour pruning), `ImplicitALS` (exact per-user solves), `mask_seen`, `top_k` |
+| `src/recsys/pipeline.py` | `tune_retrievers`, `merge_candidates`, `features`, `training_pairs` (random vs hard negatives), `make_ranker`, `run_experiment` |
+| `src/recsys/metrics.py` | HR@K, NDCG@K, MRR and candidate recall |
+
 ## Usage
 
 ```bash
 pip install -e '.[dev]'
 
 recsys-lab download --dest data                       # MovieLens-100K, checksum verified
-recsys-lab run --data-dir data --out results/movielens_100k.json   # about 1 minute
+recsys-lab run --data-dir data --out results/movielens_100k.json   # several minutes
 recsys-lab run --dataset synthetic --no-tune --seeds 1              # offline smoke run
 python scripts/make_figures.py                        # needs matplotlib
 ```
