@@ -96,7 +96,7 @@ plus validation interactions and the frozen ranker scores their candidates.
 
 | Result | Kind of evidence | File | Rerun in CI? |
 |---|---|---|---|
-| Model table, candidate recall, feature ablation | **real data**: MovieLens-100K, chronological leave-last-out, full-catalogue ranking | `results/movielens_100k.json`, `docs/results.png` | **No.** The full run takes several minutes and downloads GroupLens data that may not be redistributed. Rerun it with the second Quick start command. |
+| Model table, candidate recall, feature ablation | **real data**: MovieLens-100K, chronological leave-last-out, full-catalogue ranking | `results/movielens_100k.json`, `docs/results.png` | **Not on every push**: the full run takes several minutes and downloads GroupLens data that may not be redistributed. The `MovieLens reproduction` workflow runs it weekly and on demand, and `scripts/check_claims.py` checks every model within 0.01 HR@10 and 0.006 NDCG@10 of the committed run, plus each claim on this page. |
 | The pipeline runs end to end and beats random ranking | synthetic users with drifting tastes | `tests/`, CI smoke run | Yes |
 | Split, top-k, masking, ALS, ItemKNN and metric correctness | unit tests on hand-computed cases | `tests/test_recsys.py` (12 tests) | Yes, on Python 3.10 and 3.12 |
 
